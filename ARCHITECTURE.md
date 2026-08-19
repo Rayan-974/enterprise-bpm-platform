@@ -22,7 +22,7 @@
                                │   - BpmnEngineService                        │
                                │   - DigitalSignatureService                  │
                                │   - WorkflowVersioningService                │
-                               │   - AIWorkflowOptimizerService               │
+                               │   - ProcessOptimizerService                  │
                                │   - AuditLoggerService                       │
                                └──────────────────────┬───────────────────────┘
                                                       │

@@ -7,10 +7,10 @@ use App\Models\WorkflowDefinition;
 use App\Models\WorkflowInstance;
 use Illuminate\Support\Facades\DB;
 
-class AIWorkflowOptimizerService
+class ProcessOptimizerService
 {
     /**
-     * AI Intelligence Engine analyzing historical execution metrics and yielding optimization recommendations.
+     * Process Optimization Engine analyzing historical execution metrics and yielding recommendations.
      */
     public function generateOptimizationSuggestions(WorkflowDefinition $definition): array
     {
@@ -89,7 +89,7 @@ class AIWorkflowOptimizerService
                 'type' => 'optimal',
                 'severity' => 'success',
                 'title' => 'Process Running Optimally',
-                'message' => 'AI Engine detected no approval bottlenecks or SLA risks. The process is performing within expected parameters.',
+                'message' => 'Optimization Engine detected no approval bottlenecks or SLA risks. The process is performing within expected parameters.',
             ];
         }
 

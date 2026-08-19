@@ -9,7 +9,7 @@ use App\Models\FormField;
 use App\Models\WorkflowDefinition;
 use App\Models\WorkflowInstance;
 use App\Models\WorkflowStep;
-use App\Services\AIWorkflowOptimizerService;
+use App\Services\ProcessOptimizerService;
 use App\Services\BpmnEngineService;
 use App\Services\WorkflowEngineService;
 use App\Services\WorkflowVersioningService;
@@ -21,7 +21,7 @@ class WorkflowController extends Controller
     public function __construct(
         protected WorkflowEngineService $workflowEngine,
         protected BpmnEngineService $bpmnEngine,
-        protected AIWorkflowOptimizerService $aiOptimizer,
+        protected ProcessOptimizerService $optimizer,
         protected WorkflowVersioningService $versioningService
     ) {}
 
@@ -42,9 +42,9 @@ class WorkflowController extends Controller
     public function show(int $id)
     {
         $workflow = WorkflowDefinition::with(['steps', 'activeFormTemplate.fields', 'department'])->findOrFail($id);
-        $aiSuggestions = $this->aiOptimizer->generateOptimizationSuggestions($workflow);
+        $optimizationSuggestions = $this->optimizer->generateOptimizationSuggestions($workflow);
 
-        return view('workflows.show', compact('workflow', 'aiSuggestions'));
+        return view('workflows.show', compact('workflow', 'optimizationSuggestions'));
     }
 
     public function submit(Request $request, int $id)
@@ -94,9 +94,9 @@ class WorkflowController extends Controller
     {
         $workflow = $id ? WorkflowDefinition::with(['steps', 'activeFormTemplate.fields'])->findOrFail($id) : null;
         $departments = Department::where('is_active', true)->get();
-        $aiSuggestions = $workflow ? $this->aiOptimizer->generateOptimizationSuggestions($workflow) : [];
+        $optimizationSuggestions = $workflow ? $this->optimizer->generateOptimizationSuggestions($workflow) : [];
 
-        return view('workflows.builder', compact('workflow', 'departments', 'aiSuggestions'));
+        return view('workflows.builder', compact('workflow', 'departments', 'optimizationSuggestions'));
     }
 
     /**

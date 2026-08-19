@@ -38,7 +38,7 @@
     </div>
 
     <!-- Process Optimization Suggestions Drawer -->
-    @if(!empty($aiSuggestions))
+    @if(!empty($optimizationSuggestions))
         <div class="bg-gradient-to-r from-purpleSecondary via-purpleHover to-purpleSecondary p-7 rounded-3xl shadow-2xl text-white border border-skyPrimary/40 shiny-card">
             <h2 class="text-lg font-black tracking-tight flex items-center gap-3 mb-4">
                 <svg class="w-6 h-6 text-skyPrimary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -46,7 +46,7 @@
             </h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @foreach($aiSuggestions as $s)
+                @foreach($optimizationSuggestions as $s)
                     <div class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/20">
                         <div class="flex items-center justify-between">
                             <span class="font-black text-sm text-skyPrimary">{{ $s['title'] }}</span>

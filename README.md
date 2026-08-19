@@ -42,7 +42,7 @@ A production-grade **Enterprise Workflow Automation & Business Process Managemen
 
 ### ⚡ 7. SLA Intelligence & Auto-Escalation Engine
 - **Deadline Monitoring**: Monitors step execution times against SLA thresholds and auto-escalates overdue tasks to designated escalation handlers.
-- **Process Bottleneck Heatmaps**: AI-driven analysis of step durations to identify approval bottlenecks.
+- **Process Bottleneck Heatmaps**: Automated analytical analysis of step durations to identify approval bottlenecks.
 
 ### 🛡️ 8. Role-Based Access Control (RBAC) & Multi-Tenancy
 - **5 Enterprise Roles**: **Super Admin**, **Department Admin**, **Manager**, **Employee**, and **Auditor**.

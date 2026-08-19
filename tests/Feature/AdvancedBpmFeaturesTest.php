@@ -7,7 +7,7 @@ use App\Models\Task;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\WorkflowDefinition;
-use App\Services\AIWorkflowOptimizerService;
+use App\Services\ProcessOptimizerService;
 use App\Services\BpmnEngineService;
 use App\Services\DigitalSignatureService;
 use App\Services\WorkflowEngineService;
@@ -99,13 +99,13 @@ class AdvancedBpmFeaturesTest extends TestCase
         $this->assertFalse($workflow->is_active);
     }
 
-    public function test_ai_workflow_optimization_suggestions()
+    public function test_process_optimization_suggestions()
     {
         $workflow = WorkflowDefinition::first();
-        /** @var AIWorkflowOptimizerService $aiOptimizer */
-        $aiOptimizer = app(AIWorkflowOptimizerService::class);
+        /** @var \App\Services\ProcessOptimizerService $optimizer */
+        $optimizer = app(\App\Services\ProcessOptimizerService::class);
 
-        $suggestions = $aiOptimizer->generateOptimizationSuggestions($workflow);
+        $suggestions = $optimizer->generateOptimizationSuggestions($workflow);
 
         $this->assertIsArray($suggestions);
         $this->assertNotEmpty($suggestions);
