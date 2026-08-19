@@ -71,16 +71,16 @@
                                         <span class="text-slate-400">N/A</span>
                                     @endif
                                 </td>
-                                <td class="py-4 px-6">
-                                    <span class="text-xs font-bold px-3.5 py-1 rounded-full uppercase tracking-wider
+                                <td class="py-4 px-6 align-middle">
+                                    <span class="inline-block whitespace-nowrap text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm
                                         @if($inst->status === 'approved') bg-emerald-100 text-emerald-900 border border-emerald-300
                                         @elseif($inst->status === 'rejected') bg-rose-100 text-rose-900 border border-rose-300
                                         @else bg-sky-100 text-purpleSecondary border border-sky-300 @endif">
                                         {{ str_replace('_', ' ', $inst->status) }}
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 text-right">
-                                    <a href="{{ route('workflows.track', $inst->uuid) }}" class="shine-sweep inline-block bg-purpleSecondary hover:bg-purpleHover text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow hover:scale-105 min-h-[38px] uppercase tracking-wider">
+                                <td class="py-4 px-6 text-right align-middle">
+                                    <a href="{{ route('workflows.track', $inst->uuid) }}" class="shine-sweep inline-flex items-center justify-center whitespace-nowrap bg-purpleSecondary hover:bg-purpleHover text-white font-black text-xs px-5 py-2.5 rounded-xl transition shadow hover:scale-105 uppercase tracking-wider min-h-[40px]">
                                         View Report & Stepper &rarr;
                                     </a>
                                 </td>
