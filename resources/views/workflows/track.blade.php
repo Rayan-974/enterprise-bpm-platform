@@ -23,6 +23,21 @@
             @if($instance->due_at)
                 <p class="text-xs font-extrabold text-slate-500 mt-2">Overall SLA Due: {{ $instance->due_at->diffForHumans() }}</p>
             @endif
+
+            @if(auth()->check() && (auth()->id() === $instance->requester_id || auth()->user()->hasRole(['Super Admin', 'Department Admin'])))
+                <div class="flex items-center justify-end space-x-2 pt-2">
+                    <a href="{{ route('workflows.editRequest', $instance->uuid) }}" class="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold py-1.5 px-3 rounded-xl text-xs transition shadow-sm">
+                        ✏️ Edit Request
+                    </a>
+                    <form method="POST" action="{{ route('workflows.destroyRequest', $instance->uuid) }}" onsubmit="return confirm('Are you sure you want to delete/cancel request #{{ $instance->uuid }}?');" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 font-bold py-1.5 px-3 rounded-xl text-xs transition shadow-sm">
+                            🗑️ Delete Request
+                        </button>
+                    </form>
+                </div>
+            @endif
         </div>
     </div>
 

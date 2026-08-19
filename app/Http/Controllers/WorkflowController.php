@@ -100,6 +100,114 @@ class WorkflowController extends Controller
         return view('workflows.my_requests', compact('instances', 'status'));
     }
 
+    /**
+     * Show edit form for a submitted workflow request.
+     */
+    public function editRequest(string $uuid)
+    {
+        $instance = WorkflowInstance::with(['definition.activeFormTemplate.fields', 'requester'])
+            ->where('uuid', $uuid)
+            ->firstOrFail();
+
+        $user = Auth::user();
+        if ($instance->requester_id !== $user->id && !$user->hasRole(['Super Admin', 'Department Admin'])) {
+            abort(403, 'Unauthorized to edit this workflow request.');
+        }
+
+        return view('workflows.edit_request', compact('instance'));
+    }
+
+    /**
+     * Update submitted workflow request payload and files.
+     */
+    public function updateRequest(Request $request, string $uuid)
+    {
+        $instance = WorkflowInstance::with(['definition.activeFormTemplate.fields'])
+            ->where('uuid', $uuid)
+            ->firstOrFail();
+
+        $user = Auth::user();
+        if ($instance->requester_id !== $user->id && !$user->hasRole(['Super Admin', 'Department Admin'])) {
+            abort(403, 'Unauthorized to edit this workflow request.');
+        }
+
+        try {
+            $payload = $instance->payload ?? [];
+            $newInputs = $request->except(['_token', '_method']);
+
+            foreach ($newInputs as $key => $val) {
+                if ($val !== null) {
+                    $payload[$key] = $val;
+                }
+            }
+
+            // Handle updated files
+            foreach ($request->allFiles() as $key => $file) {
+                if ($file->isValid()) {
+                    $path = $file->store('attachments', 'public');
+                    $payload[$key] = [
+                        'name' => $file->getClientOriginalName(),
+                        'path' => $path,
+                        'url' => asset('storage/' . $path),
+                        'size' => round($file->getSize() / 1024, 1) . ' KB',
+                    ];
+                }
+            }
+
+            $instance->payload = $payload;
+            $instance->save();
+
+            // Log Audit Event
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'workflow_instance.update',
+                'auditable_type' => WorkflowInstance::class,
+                'auditable_id' => $instance->id,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'new_values' => ['uuid' => $instance->uuid, 'updated_by' => $user->name],
+            ]);
+
+            return redirect()->route('workflows.track', $instance->uuid)
+                ->with('success', "Workflow request #{$instance->uuid} successfully updated!");
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Delete / Cancel a workflow request.
+     */
+    public function destroyRequest(Request $request, string $uuid)
+    {
+        $instance = WorkflowInstance::where('uuid', $uuid)->firstOrFail();
+        $user = Auth::user();
+
+        if ($instance->requester_id !== $user->id && !$user->hasRole(['Super Admin', 'Department Admin'])) {
+            abort(403, 'Unauthorized to delete this workflow request.');
+        }
+
+        // Delete associated tasks and approvals
+        $instance->tasks()->delete();
+        $instance->approvals()->delete();
+
+        // Log Audit Event
+        AuditLog::create([
+            'user_id' => $user->id,
+            'action' => 'workflow_instance.delete',
+            'auditable_type' => WorkflowInstance::class,
+            'auditable_id' => $instance->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'old_values' => ['uuid' => $instance->uuid, 'deleted_by' => $user->name],
+        ]);
+
+        $instance->delete();
+
+        return redirect()->route('workflows.myRequests')
+            ->with('success', "Workflow request #{$uuid} has been successfully deleted.");
+    }
+
     public function track(string $uuid)
     {
         $instance = WorkflowInstance::with([

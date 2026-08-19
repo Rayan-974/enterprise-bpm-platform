@@ -80,9 +80,21 @@
                                     </span>
                                 </td>
                                 <td class="py-4 px-6 text-right align-middle">
-                                    <a href="{{ route('workflows.track', $inst->uuid) }}" class="shine-sweep inline-flex items-center justify-center whitespace-nowrap bg-purpleSecondary hover:bg-purpleHover text-white font-black text-xs px-5 py-2.5 rounded-xl transition shadow hover:scale-105 uppercase tracking-wider min-h-[40px]">
-                                        View Report & Stepper &rarr;
-                                    </a>
+                                    <div class="flex items-center justify-end space-x-2">
+                                        <a href="{{ route('workflows.track', $inst->uuid) }}" class="shine-sweep inline-flex items-center justify-center whitespace-nowrap bg-purpleSecondary hover:bg-purpleHover text-white font-black text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 uppercase tracking-wider min-h-[38px]">
+                                            Report &rarr;
+                                        </a>
+                                        <a href="{{ route('workflows.editRequest', $inst->uuid) }}" class="inline-flex items-center justify-center bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold px-3 py-2 rounded-xl text-xs transition shadow-sm min-h-[38px]">
+                                            ✏️ Edit
+                                        </a>
+                                        <form method="POST" action="{{ route('workflows.destroyRequest', $inst->uuid) }}" onsubmit="return confirm('Are you sure you want to delete/cancel request #{{ $inst->uuid }}?');" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 font-bold px-3 py-2 rounded-xl text-xs transition shadow-sm min-h-[38px]">
+                                                🗑️ Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -112,11 +124,23 @@
                         </div>
                     </div>
 
-                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-                        <span class="text-[10px] font-mono text-slate-400 truncate max-w-[150px]">#{{ $inst->uuid }}</span>
-                        <a href="{{ route('workflows.track', $inst->uuid) }}" class="shine-sweep bg-purpleSecondary hover:bg-purpleHover text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow min-h-[38px] flex items-center justify-center uppercase tracking-wider">
-                            View Report &rarr;
-                        </a>
+                    <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                        <span class="text-[10px] font-mono text-slate-400 truncate max-w-[120px]">#{{ $inst->uuid }}</span>
+                        <div class="flex items-center space-x-1.5">
+                            <a href="{{ route('workflows.track', $inst->uuid) }}" class="shine-sweep bg-purpleSecondary hover:bg-purpleHover text-white font-bold text-xs px-3 py-1.5 rounded-xl transition shadow min-h-[36px] flex items-center justify-center uppercase tracking-wider">
+                                Report &rarr;
+                            </a>
+                            <a href="{{ route('workflows.editRequest', $inst->uuid) }}" class="bg-amber-50 text-amber-900 border border-amber-300 font-bold px-2.5 py-1.5 rounded-xl text-xs transition shadow-sm min-h-[36px] flex items-center justify-center">
+                                ✏️
+                            </a>
+                            <form method="POST" action="{{ route('workflows.destroyRequest', $inst->uuid) }}" onsubmit="return confirm('Are you sure you want to delete/cancel request #{{ $inst->uuid }}?');" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="bg-rose-50 text-rose-800 border border-rose-300 font-bold px-2.5 py-1.5 rounded-xl text-xs transition shadow-sm min-h-[36px] flex items-center justify-center">
+                                    🗑️
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             @endforeach
