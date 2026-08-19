@@ -34,7 +34,11 @@ class FormEngineService
                     $fieldRules[] = 'date';
                     break;
                 case 'file':
-                    $fieldRules[] = 'string'; // base64 or file path reference
+                    $fieldRules[] = function ($attribute, $value, $fail) {
+                        if (!($value instanceof \Illuminate\Http\UploadedFile) && !is_array($value) && !is_string($value)) {
+                            $fail("The {$attribute} must be a valid file or document.");
+                        }
+                    };
                     break;
                 case 'multiselect':
                     $fieldRules[] = 'array';

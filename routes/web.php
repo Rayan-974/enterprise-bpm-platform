@@ -50,10 +50,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Analytics & SLA Intelligence
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('/analytics/export/csv', [AnalyticsController::class, 'exportCsv'])->name('analytics.exportCsv');
     Route::post('/analytics/scan', [AnalyticsController::class, 'scan'])->name('analytics.scan');
 
     // Audit Trail Inspector
     Route::get('/audit', [AuditController::class, 'index'])->name('audit.index');
+    Route::get('/audit/export/csv', [AuditController::class, 'exportCsv'])->name('audit.exportCsv');
 
     // Notifications Center
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

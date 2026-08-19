@@ -74,7 +74,13 @@
                     @foreach($instance->payload as $key => $val)
                         <div class="flex flex-col bg-creamBase/80 p-4 rounded-2xl border border-slate-200/80">
                             <span class="text-xs font-black text-slate-500 uppercase tracking-widest">{{ str_replace('_', ' ', $key) }}</span>
-                            <span class="text-base font-extrabold text-slate-900 mt-1">{{ is_array($val) ? implode(', ', $val) : $val }}</span>
+                            @if(is_array($val) && isset($val['url'], $val['name']))
+                                <a href="{{ $val['url'] }}" target="_blank" download class="inline-flex items-center space-x-2 mt-2 bg-sky-50 text-purpleSecondary hover:bg-sky-100 border border-sky-300 font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-sm w-fit">
+                                    <span>📎 {{ $val['name'] }} ({{ $val['size'] ?? 'Download' }})</span>
+                                </a>
+                            @else
+                                <span class="text-base font-extrabold text-slate-900 mt-1">{{ is_array($val) ? implode(', ', $val) : $val }}</span>
+                            @endif
                         </div>
                     @endforeach
                 </div>

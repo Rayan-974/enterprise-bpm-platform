@@ -155,6 +155,7 @@
                                 <option value="textarea">Textarea</option>
                                 <option value="dropdown">Dropdown Select</option>
                                 <option value="date">Date Picker</option>
+                                <option value="file">File / Document Attachment Upload</option>
                             </select>
                         </div>
                         <div class="flex items-center justify-between pt-2">
@@ -261,12 +262,13 @@ function addDesignerField() {
         </div>
         <div>
             <label class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Input Type</label>
-            <select name="fields[${idx}][field_type]" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-800">
+            <select name="fields[\${idx}][field_type]" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-800">
                 <option value="text">Text Input</option>
                 <option value="number">Number</option>
                 <option value="textarea">Textarea</option>
                 <option value="dropdown">Dropdown Select</option>
                 <option value="date">Date Picker</option>
+                <option value="file">File / Document Attachment Upload</option>
             </select>
         </div>
         <div class="flex items-center justify-between pt-2">

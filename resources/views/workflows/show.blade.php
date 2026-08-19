@@ -31,7 +31,7 @@
         </div>
 
         <!-- Dynamic Form -->
-        <form method="POST" action="{{ route('workflows.submit', $workflow->id) }}" class="space-y-6">
+        <form method="POST" action="{{ route('workflows.submit', $workflow->id) }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
             @if($workflow->activeFormTemplate && $workflow->activeFormTemplate->fields->count() > 0)
@@ -54,6 +54,9 @@
                                 @endif
                             </select>
                         
+                        @elseif($field->field_type === 'file')
+                            <input type="file" name="{{ $field->field_name }}" class="w-full bg-creamBase/80 border border-slate-300 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-skyPrimary focus:border-skyPrimary transition shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-purpleSecondary file:text-white hover:file:bg-purpleHover" {{ $field->is_required ? 'required' : '' }}>
+
                         @elseif($field->field_type === 'date')
                             <input type="date" name="{{ $field->field_name }}" value="{{ old($field->field_name) }}" class="w-full bg-creamBase/80 border border-slate-300 rounded-2xl px-5 py-4 text-base font-bold text-slate-800 focus:ring-2 focus:ring-skyPrimary focus:border-skyPrimary transition shadow-inner" {{ $field->is_required ? 'required' : '' }}>
                         

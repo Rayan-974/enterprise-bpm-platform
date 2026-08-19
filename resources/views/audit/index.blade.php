@@ -14,8 +14,13 @@
             <p class="text-sm font-semibold text-slate-500 mt-2">Complete immutable audit logging capturing user activity, workflow state changes, IP address, and timestamps.</p>
         </div>
 
-        <!-- Controls: Rows per page filter -->
-        <form method="GET" action="{{ route('audit.index') }}" class="flex items-center space-x-3">
+        <div class="flex items-center space-x-3">
+            <a href="{{ route('audit.exportCsv') }}" class="shine-sweep bg-purpleSecondary hover:bg-purpleHover text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-lg transition hover:scale-105 uppercase tracking-wider flex items-center gap-2">
+                <span>📥 Export to CSV Report</span>
+            </a>
+
+            <!-- Controls: Rows per page filter -->
+            <form method="GET" action="{{ route('audit.index') }}" class="flex items-center space-x-3">
             @foreach($filters as $k => $v)
                 @if($v)
                     <input type="hidden" name="{{ $k }}" value="{{ $v }}">

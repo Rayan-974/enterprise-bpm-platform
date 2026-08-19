@@ -20,7 +20,13 @@
                     @foreach($task->workflowInstance->payload as $k => $v)
                         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
                             <span class="text-xs font-semibold text-slate-400 uppercase block tracking-wider">{{ str_replace('_', ' ', $k) }}</span>
-                            <span class="text-base font-bold text-slate-900 mt-1 block">{{ is_array($v) ? implode(', ', $v) : $v }}</span>
+                            @if(is_array($v) && isset($v['url'], $v['name']))
+                                <a href="{{ $v['url'] }}" target="_blank" download class="inline-flex items-center space-x-2 mt-2 bg-sky-50 text-purpleSecondary hover:bg-sky-100 border border-sky-300 font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-sm">
+                                    <span>📎 {{ $v['name'] }} ({{ $v['size'] ?? 'Download' }})</span>
+                                </a>
+                            @else
+                                <span class="text-base font-bold text-slate-900 mt-1 block">{{ is_array($v) ? implode(', ', $v) : $v }}</span>
+                            @endif
                         </div>
                     @endforeach
                 </div>

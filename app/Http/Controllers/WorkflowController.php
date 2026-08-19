@@ -54,6 +54,20 @@ class WorkflowController extends Controller
 
         try {
             $payload = $request->except(['_token']);
+
+            // Handle file attachments
+            foreach ($request->allFiles() as $key => $file) {
+                if ($file->isValid()) {
+                    $path = $file->store('attachments', 'public');
+                    $payload[$key] = [
+                        'name' => $file->getClientOriginalName(),
+                        'path' => $path,
+                        'url' => asset('storage/' . $path),
+                        'size' => round($file->getSize() / 1024, 1) . ' KB',
+                    ];
+                }
+            }
+
             $instance = $this->workflowEngine->startWorkflow($workflow, $user, $payload);
 
             return redirect()->route('workflows.track', $instance->uuid)

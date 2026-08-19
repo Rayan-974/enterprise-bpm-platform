@@ -8,7 +8,10 @@
             <h1 class="text-3xl font-extrabold gradient-text tracking-tight">Workflow Analytics & SLA Intelligence</h1>
             <p class="text-sm font-medium text-slate-500 mt-2">Real-time SLA monitoring, bottleneck step identification, and department efficiency scores.</p>
         </div>
-        <div class="flex items-center space-x-3">
+        <div class="flex flex-wrap items-center gap-3">
+            <a href="{{ route('analytics.exportCsv') }}" class="shine-sweep bg-purpleSecondary hover:bg-purpleHover text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-lg transition hover:scale-105 uppercase tracking-wider flex items-center gap-2">
+                <span>📥 Export to CSV Report</span>
+            </a>
             <form method="POST" action="{{ route('analytics.scan') }}">
                 @csrf
                 <button type="submit" class="shine-sweep bg-skyPrimary hover:bg-skyHover text-purpleSecondary font-bold text-xs px-5 py-3 rounded-2xl border border-skyPrimary shadow-lg transition hover:scale-105 uppercase tracking-wider flex items-center gap-2">
@@ -37,6 +40,31 @@
             <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest block">Active Overdue Tasks</span>
             <div class="text-5xl font-extrabold text-rose-600 mt-4 tracking-tight stat-countup">{{ $kpis['overdue_tasks'] }}</div>
             <p class="text-xs font-normal text-slate-400 mt-2">Escalations auto-dispatched to managers</p>
+        </div>
+    </div>
+
+    <!-- Interactive Visual Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Department Request Volume (Bar Chart) -->
+        <div class="bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-slate-200/80 shiny-card">
+            <h2 class="text-xl font-bold gradient-text mb-6 flex items-center gap-3">
+                <svg class="w-6 h-6 text-purpleSecondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                Department Performance Comparison
+            </h2>
+            <div class="h-64 relative">
+                <canvas id="deptChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Workflow Status Breakdown (Doughnut Chart) -->
+        <div class="bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-slate-200/80 shiny-card">
+            <h2 class="text-xl font-bold gradient-text mb-6 flex items-center gap-3">
+                <svg class="w-6 h-6 text-skyPrimary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                SLA Compliance & Execution Status
+            </h2>
+            <div class="h-64 relative flex items-center justify-center">
+                <canvas id="statusChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -104,4 +132,78 @@
         </div>
     </div>
 </div>
+
+<!-- Chart.js Engine -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Department Performance Bar Chart
+    const deptCtx = document.getElementById('deptChart');
+    if (deptCtx) {
+        const deptNames = {!! json_encode(array_column($departments, 'code')) !!};
+        const totalData = {!! json_encode(array_column($departments, 'total_requests')) !!};
+        const approvedData = {!! json_encode(array_column($departments, 'approved')) !!};
+
+        new Chart(deptCtx, {
+            type: 'bar',
+            data: {
+                labels: deptNames,
+                datasets: [
+                    {
+                        label: 'Total Requests',
+                        data: totalData,
+                        backgroundColor: '#4B2E83',
+                        borderRadius: 8
+                    },
+                    {
+                        label: 'Approved Requests',
+                        data: approvedData,
+                        backgroundColor: '#87CEEB',
+                        borderRadius: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { font: { weight: 'bold', size: 11 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // 2. Status Breakdown Doughnut Chart
+    const statusCtx = document.getElementById('statusChart');
+    if (statusCtx) {
+        const complianceRate = {{ $kpis['sla_compliance_rate'] }};
+        const overdueTasks = {{ $kpis['overdue_tasks'] }};
+
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['SLA Compliant', 'Breached / Overdue'],
+                datasets: [{
+                    data: [complianceRate, Math.max(100 - complianceRate, overdueTasks)],
+                    backgroundColor: ['#10B981', '#E11D48'],
+                    borderWidth: 3,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 11 } } }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+});
+</script>
 @endsection
