@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-3xl mx-auto space-y-8 page-fade-up">
-    <div class="bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-slate-200/80 shiny-card">
+<div class="w-full space-y-6 page-fade-up">
+    <div class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 shiny-card">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 pb-5 mb-8 gap-4">
             <div>
                 <span class="badge-sky text-xs font-black uppercase tracking-widest mb-3 inline-block">{{ $workflow->category }}</span>

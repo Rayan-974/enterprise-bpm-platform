@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-3xl mx-auto space-y-8 page-fade-up">
+<div class="w-full space-y-6 page-fade-up">
     <!-- Edit Header -->
     <div class="bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-slate-200/80 shiny-card">
         <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-8">

@@ -48,6 +48,7 @@ class WorkflowSeeder extends Seeder
             ['field_name' => 'vendor_name', 'label' => 'Vendor / Supplier Name', 'field_type' => 'text', 'is_required' => true, 'field_order' => 3],
             ['field_name' => 'category', 'label' => 'Expenditure Category', 'field_type' => 'dropdown', 'is_required' => true, 'options' => ['Hardware & Infrastructure', 'Software Licenses', 'Consulting', 'Facilities'], 'field_order' => 4],
             ['field_name' => 'justification', 'label' => 'Business Justification', 'field_type' => 'textarea', 'is_required' => true, 'field_order' => 5],
+            ['field_name' => 'attachment_doc', 'label' => 'Vendor Quote / Proposal Document Attachment', 'field_type' => 'file', 'is_required' => false, 'field_order' => 6],
         ];
         foreach ($capexFields as $f) {
             FormField::updateOrCreate(['form_template_id' => $capexForm->id, 'field_name' => $f['field_name']], $f);
@@ -99,7 +100,8 @@ class WorkflowSeeder extends Seeder
             ['field_name' => 'leave_type', 'label' => 'Leave Type', 'field_type' => 'dropdown', 'is_required' => true, 'options' => ['Annual Leave', 'Sick Leave', 'Parental Leave', 'Unpaid Leave'], 'field_order' => 1],
             ['field_name' => 'start_date', 'label' => 'Start Date', 'field_type' => 'date', 'is_required' => true, 'field_order' => 2],
             ['field_name' => 'end_date', 'label' => 'End Date', 'field_type' => 'date', 'is_required' => true, 'field_order' => 3],
-            ['field_name' => 'reason', 'label' => 'Comments / Notes', 'field_type' => 'textarea', 'is_required' => false, 'field_order' => 4],
+            ['field_name' => 'medical_proof', 'label' => 'Medical Certificate / Supporting Document Attachment', 'field_type' => 'file', 'is_required' => false, 'field_order' => 4],
+            ['field_name' => 'reason', 'label' => 'Comments / Notes', 'field_type' => 'textarea', 'is_required' => false, 'field_order' => 5],
         ];
         foreach ($leaveFields as $f) {
             FormField::updateOrCreate(['form_template_id' => $leaveForm->id, 'field_name' => $f['field_name']], $f);
@@ -141,7 +143,8 @@ class WorkflowSeeder extends Seeder
         $reimbFields = [
             ['field_name' => 'amount', 'label' => 'Claim Amount (USD)', 'field_type' => 'number', 'is_required' => true, 'field_order' => 1],
             ['field_name' => 'expense_date', 'label' => 'Expense Date', 'field_type' => 'date', 'is_required' => true, 'field_order' => 2],
-            ['field_name' => 'description', 'label' => 'Expense Description', 'field_type' => 'textarea', 'is_required' => true, 'field_order' => 3],
+            ['field_name' => 'receipt_attachment', 'label' => 'Invoice / Receipt Document Attachment', 'field_type' => 'file', 'is_required' => false, 'field_order' => 3],
+            ['field_name' => 'description', 'label' => 'Expense Description', 'field_type' => 'textarea', 'is_required' => true, 'field_order' => 4],
         ];
         foreach ($reimbFields as $f) {
             FormField::updateOrCreate(['form_template_id' => $reimbForm->id, 'field_name' => $f['field_name']], $f);
@@ -178,7 +181,8 @@ class WorkflowSeeder extends Seeder
             ['field_name' => 'contract_title', 'label' => 'Contract Title', 'field_type' => 'text', 'is_required' => true, 'field_order' => 1],
             ['field_name' => 'counterparty', 'label' => 'Counterparty / Company', 'field_type' => 'text', 'is_required' => true, 'field_order' => 2],
             ['field_name' => 'contract_value', 'label' => 'Contract Total Value (USD)', 'field_type' => 'number', 'is_required' => true, 'field_order' => 3],
-            ['field_name' => 'special_terms', 'label' => 'Special Terms or Notes', 'field_type' => 'textarea', 'is_required' => false, 'field_order' => 4],
+            ['field_name' => 'contract_doc', 'label' => 'Draft Contract PDF / Document Attachment', 'field_type' => 'file', 'is_required' => false, 'field_order' => 4],
+            ['field_name' => 'special_terms', 'label' => 'Special Terms or Notes', 'field_type' => 'textarea', 'is_required' => false, 'field_order' => 5],
         ];
         foreach ($legalFields as $f) {
             FormField::updateOrCreate(['form_template_id' => $legalForm->id, 'field_name' => $f['field_name']], $f);
