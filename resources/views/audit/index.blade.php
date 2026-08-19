@@ -9,9 +9,9 @@
             <p class="text-xs sm:text-sm font-medium text-slate-500 mt-1.5">Complete immutable audit logging capturing user activity, entity mutations, IP address, and timestamps.</p>
         </div>
 
-        <!-- Action Cluster (Right Aligned) -->
-        <div class="flex flex-wrap items-center gap-3">
-            <a href="{{ route('audit.exportCsv') }}" class="shine-sweep bg-purpleSecondary hover:bg-purpleHover text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-lg transition hover:scale-105 uppercase tracking-wider flex items-center gap-2 min-h-[44px]">
+        <!-- Action Cluster (Right Aligned Edge-to-Edge) -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 flex-shrink-0">
+            <a href="{{ route('audit.exportCsv') }}" class="shine-sweep bg-purpleSecondary hover:bg-purpleHover text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-lg transition hover:scale-105 uppercase tracking-wider flex items-center justify-center gap-2 min-h-[44px] whitespace-nowrap">
                 <span>📥 Export to CSV Report</span>
             </a>
 
@@ -22,8 +22,8 @@
                         <input type="hidden" name="{{ $k }}" value="{{ $v }}">
                     @endif
                 @endforeach
-                <label for="per_page" class="text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap hidden sm:inline">Display:</label>
-                <select id="per_page" name="per_page" onchange="this.form.submit()" class="bg-creamBase border border-slate-300 text-purpleSecondary font-bold text-xs rounded-2xl px-4 py-3 focus:ring-2 focus:ring-skyPrimary focus:border-skyPrimary transition shadow-sm cursor-pointer min-h-[44px]">
+                <label for="per_page" class="text-xs font-extrabold text-slate-600 uppercase tracking-wider whitespace-nowrap hidden sm:inline">Display:</label>
+                <select id="per_page" name="per_page" onchange="this.form.submit()" class="w-full sm:w-auto bg-creamBase border border-slate-300 text-purpleSecondary font-extrabold text-xs rounded-2xl px-4 py-3 focus:ring-2 focus:ring-skyPrimary focus:border-skyPrimary transition shadow-sm cursor-pointer min-h-[44px]">
                     <option value="all" {{ $perPage === 'all' ? 'selected' : '' }}>Show All Logs</option>
                     <option value="50" {{ $perPage == '50' ? 'selected' : '' }}>50 Per Page</option>
                     <option value="100" {{ $perPage == '100' ? 'selected' : '' }}>100 Per Page</option>

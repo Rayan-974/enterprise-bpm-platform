@@ -8,13 +8,13 @@
             <h1 class="text-3xl font-extrabold gradient-text tracking-tight">Workflow Analytics & SLA Intelligence</h1>
             <p class="text-sm font-medium text-slate-500 mt-2">Real-time SLA monitoring, bottleneck step identification, and department efficiency scores.</p>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
-            <a href="{{ route('analytics.exportCsv') }}" class="shine-sweep bg-purpleSecondary hover:bg-purpleHover text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-lg transition hover:scale-105 uppercase tracking-wider flex items-center gap-2">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 flex-shrink-0">
+            <a href="{{ route('analytics.exportCsv') }}" class="shine-sweep bg-purpleSecondary hover:bg-purpleHover text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-lg transition hover:scale-105 uppercase tracking-wider flex items-center justify-center gap-2 whitespace-nowrap min-h-[44px]">
                 <span>📥 Export to CSV Report</span>
             </a>
             <form method="POST" action="{{ route('analytics.scan') }}">
                 @csrf
-                <button type="submit" class="shine-sweep bg-skyPrimary hover:bg-skyHover text-purpleSecondary font-bold text-xs px-5 py-3 rounded-2xl border border-skyPrimary shadow-lg transition hover:scale-105 uppercase tracking-wider flex items-center gap-2">
+                <button type="submit" class="w-full sm:w-auto shine-sweep bg-skyPrimary hover:bg-skyHover text-purpleSecondary font-bold text-xs px-5 py-3 rounded-2xl border border-skyPrimary shadow-lg transition hover:scale-105 uppercase tracking-wider flex items-center justify-center gap-2 whitespace-nowrap min-h-[44px]">
                     <svg class="w-4 h-4 text-purpleSecondary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     <span>Run Auto-Scan Now</span>
                 </button>
