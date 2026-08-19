@@ -79,6 +79,27 @@ class WorkflowController extends Controller
         }
     }
 
+    /**
+     * Display all workflow requests submitted by the logged-in employee.
+     */
+    public function myRequests(Request $request)
+    {
+        $user = Auth::user();
+        $status = $request->get('status');
+
+        $query = WorkflowInstance::with(['definition.steps', 'currentStep', 'approvals', 'requester'])
+            ->where('requester_id', $user->id)
+            ->orderBy('created_at', 'desc');
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $instances = $query->paginate(15);
+
+        return view('workflows.my_requests', compact('instances', 'status'));
+    }
+
     public function track(string $uuid)
     {
         $instance = WorkflowInstance::with([

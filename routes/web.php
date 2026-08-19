@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/workflows/{id}/version', [WorkflowController::class, 'createVersion'])->name('workflows.createVersion');
     Route::get('/workflows/{id}', [WorkflowController::class, 'show'])->name('workflows.show');
     Route::post('/workflows/{id}/submit', [WorkflowController::class, 'submit'])->name('workflows.submit');
+    Route::get('/my-requests', [WorkflowController::class, 'myRequests'])->name('workflows.myRequests');
     Route::get('/workflows/track/{uuid}', [WorkflowController::class, 'track'])->name('workflows.track');
 
     // Tasks Management Center
