@@ -3,13 +3,31 @@
 @section('content')
 <div class="max-w-3xl mx-auto space-y-8 page-fade-up">
     <div class="bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-slate-200/80 shiny-card">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 pb-5 mb-8 gap-4">
             <div>
                 <span class="badge-sky text-xs font-black uppercase tracking-widest mb-3 inline-block">{{ $workflow->category }}</span>
                 <h1 class="text-3xl font-black gradient-text tracking-tight">{{ $workflow->name }}</h1>
                 <p class="text-sm font-bold text-slate-500 mt-1.5">{{ $workflow->description }}</p>
             </div>
-            <a href="{{ route('workflows.index') }}" class="text-xs font-black text-slate-500 hover:text-purpleSecondary transition">&larr; Back to Catalog</a>
+            
+            <div class="flex flex-col items-end space-y-2">
+                <a href="{{ route('workflows.index') }}" class="text-xs font-black text-slate-500 hover:text-purpleSecondary transition">&larr; Back to Catalog</a>
+
+                @if(auth()->check() && auth()->user()->hasRole(['Super Admin', 'Department Admin']))
+                    <div class="flex items-center space-x-2 pt-1">
+                        <a href="{{ route('workflows.edit', $workflow->id) }}" class="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold py-1.5 px-3 rounded-xl text-xs transition shadow-sm">
+                            ✏️ Edit Catalog
+                        </a>
+                        <form method="POST" action="{{ route('workflows.destroy', $workflow->id) }}" onsubmit="return confirm('Are you sure you want to delete workflow definition \'{{ $workflow->name }}\' from the catalog?');" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 font-bold py-1.5 px-3 rounded-xl text-xs transition shadow-sm">
+                                🗑️ Delete
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            </div>
         </div>
 
         <!-- Dynamic Form -->

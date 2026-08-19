@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Department;
 use App\Models\FormTemplate;
 use App\Models\FormField;
@@ -144,9 +145,14 @@ class WorkflowController extends Controller
 
     public function storeDesigner(Request $request)
     {
+        $workflowId = $request->input('workflow_id');
+        $codeRule = $workflowId
+            ? 'required|string|max:50|unique:workflow_definitions,code,' . $workflowId
+            : 'required|string|max:50|unique:workflow_definitions,code';
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:workflow_definitions,code',
+            'code' => $codeRule,
             'category' => 'required|string',
             'department_id' => 'nullable|exists:departments,id',
             'sla_hours' => 'required|integer|min:1',
@@ -161,19 +167,32 @@ class WorkflowController extends Controller
             'fields.*.field_type' => 'required|string',
         ]);
 
-        $definition = WorkflowDefinition::create([
-            'name' => $request->name,
-            'code' => strtoupper($request->code),
-            'category' => $request->category,
-            'description' => $request->description,
-            'department_id' => $request->department_id,
-            'version' => 1,
-            'is_active' => true,
-            'sla_hours' => $request->sla_hours,
-            'created_by' => Auth::id(),
-        ]);
+        if ($workflowId) {
+            $definition = WorkflowDefinition::findOrFail($workflowId);
+            $definition->update([
+                'name' => $request->name,
+                'code' => strtoupper($request->code),
+                'category' => $request->category,
+                'description' => $request->description,
+                'department_id' => $request->department_id,
+                'sla_hours' => $request->sla_hours,
+            ]);
+            $definition->steps()->delete();
+        } else {
+            $definition = WorkflowDefinition::create([
+                'name' => $request->name,
+                'code' => strtoupper($request->code),
+                'category' => $request->category,
+                'description' => $request->description,
+                'department_id' => $request->department_id,
+                'version' => 1,
+                'is_active' => true,
+                'sla_hours' => $request->sla_hours,
+                'created_by' => Auth::id(),
+            ]);
+        }
 
-        // Create Steps
+        // Create/Recreate Steps
         foreach ($request->steps as $index => $s) {
             WorkflowStep::create([
                 'workflow_definition_id' => $definition->id,
@@ -186,13 +205,22 @@ class WorkflowController extends Controller
             ]);
         }
 
-        // Create Form Template & Fields
-        $template = FormTemplate::create([
-            'workflow_definition_id' => $definition->id,
-            'title' => $request->form_title,
-            'description' => $request->form_description,
-            'is_active' => true,
-        ]);
+        // Create/Update Form Template & Fields
+        if ($workflowId && $definition->activeFormTemplate) {
+            $template = $definition->activeFormTemplate;
+            $template->update([
+                'title' => $request->form_title,
+                'description' => $request->form_description,
+            ]);
+            $template->fields()->delete();
+        } else {
+            $template = FormTemplate::create([
+                'workflow_definition_id' => $definition->id,
+                'title' => $request->form_title,
+                'description' => $request->form_description,
+                'is_active' => true,
+            ]);
+        }
 
         foreach ($request->fields as $index => $f) {
             $options = !empty($f['options']) ? array_map('trim', explode(',', $f['options'])) : null;
@@ -208,6 +236,94 @@ class WorkflowController extends Controller
         }
 
         return redirect()->route('workflows.index')
-            ->with('success', "Workflow '{$definition->name}' and dynamic form published successfully!");
+            ->with('success', "Workflow '{$definition->name}' and step canvas updated successfully!");
+    }
+
+    public function edit(int $id)
+    {
+        $user = Auth::user();
+        if (!$user->hasRole(['Super Admin', 'Department Admin'])) {
+            return back()->with('error', 'Unauthorized. Only Admins can edit workflow catalog definitions.');
+        }
+
+        $workflow = WorkflowDefinition::with(['steps', 'activeFormTemplate.fields', 'department'])->findOrFail($id);
+        $departments = Department::where('is_active', true)->get();
+
+        return view('workflows.edit', compact('workflow', 'departments'));
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $user = Auth::user();
+        if (!$user->hasRole(['Super Admin', 'Department Admin'])) {
+            return back()->with('error', 'Unauthorized. Only Admins can update workflow catalog definitions.');
+        }
+
+        $workflow = WorkflowDefinition::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:50|unique:workflow_definitions,code,' . $id,
+            'category' => 'required|string',
+            'description' => 'nullable|string',
+            'department_id' => 'nullable|exists:departments,id',
+            'sla_hours' => 'required|integer|min:1',
+            'is_active' => 'required|boolean',
+        ]);
+
+        $workflow->update([
+            'name' => $request->name,
+            'code' => strtoupper($request->code),
+            'category' => $request->category,
+            'description' => $request->description,
+            'department_id' => $request->department_id,
+            'sla_hours' => $request->sla_hours,
+            'is_active' => $request->is_active,
+        ]);
+
+        AuditLog::create([
+            'user_id' => $user->id,
+            'action' => 'WORKFLOW_UPDATED',
+            'entity_type' => WorkflowDefinition::class,
+            'entity_id' => $workflow->id,
+            'new_values' => $workflow->toArray(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return redirect()->route('workflows.index')
+            ->with('success', "Workflow catalog item '{$workflow->name}' updated successfully!");
+    }
+
+    public function destroy(Request $request, int $id)
+    {
+        $user = Auth::user();
+        if (!$user->hasRole(['Super Admin', 'Department Admin'])) {
+            return back()->with('error', 'Unauthorized. Only Admins can delete workflow catalog items.');
+        }
+
+        $workflow = WorkflowDefinition::findOrFail($id);
+        $name = $workflow->name;
+
+        AuditLog::create([
+            'user_id' => $user->id,
+            'action' => 'WORKFLOW_DELETED',
+            'entity_type' => WorkflowDefinition::class,
+            'entity_id' => $workflow->id,
+            'old_values' => $workflow->toArray(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        // Delete workflow definition and related steps/form templates
+        $workflow->steps()->delete();
+        if ($workflow->activeFormTemplate) {
+            $workflow->activeFormTemplate->fields()->delete();
+            $workflow->activeFormTemplate()->delete();
+        }
+        $workflow->delete();
+
+        return redirect()->route('workflows.index')
+            ->with('success', "Workflow catalog item '{$name}' deleted successfully!");
     }
 }

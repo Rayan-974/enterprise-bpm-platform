@@ -45,7 +45,7 @@ class DashboardController extends Controller
             ->get();
 
         // Recent Audit logs
-        $recentAudits = AuditLog::with('user')->orderBy('created_at', 'desc')->limit(6)->get();
+        $recentAudits = AuditLog::with('user')->orderBy('created_at', 'desc')->limit(15)->get();
 
         return view('dashboard', compact('kpis', 'myPendingTasks', 'myRequests', 'runningWorkflows', 'recentAudits'));
     }

@@ -12,8 +12,9 @@ class AuditController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only(['action', 'entity_type', 'user_id']);
-        $logs = $this->auditRepo->getPaginatedLogs($filters, 20);
+        $perPage = $request->input('per_page', 'all');
+        $logs = $this->auditRepo->getPaginatedLogs($filters, $perPage);
 
-        return view('audit.index', compact('logs', 'filters'));
+        return view('audit.index', compact('logs', 'filters', 'perPage'));
     }
 }

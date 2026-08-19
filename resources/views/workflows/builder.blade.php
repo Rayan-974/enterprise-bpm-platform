@@ -14,7 +14,7 @@
             <h1 class="text-3xl font-black gradient-text tracking-tight">
                 {{ $workflow ? 'Workflow Canvas: ' . $workflow->name : 'Interactive Drag & Drop Workflow Builder' }}
             </h1>
-            <p class="text-sm font-bold text-slate-500 mt-1">Drag and re-order step nodes, configure conditional decision logic, export BPMN 2.0 XML, or create a new process version.</p>
+            <p class="text-sm font-bold text-slate-500 mt-1">Drag step nodes to add or re-order steps on the canvas. Click "Save & Deploy Canvas Workflow" to save your sequence.</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -102,41 +102,56 @@
         <div class="lg:col-span-2 bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-slate-200/80 space-y-6">
             <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                 <h2 class="text-lg font-black gradient-text">Active Process Sequence Canvas</h2>
-                <button onclick="addStepCard()" class="shine-sweep bg-skyPrimary hover:bg-skyHover text-purpleSecondary font-black px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg">
+                <button type="button" onclick="addStepCard()" class="shine-sweep bg-skyPrimary hover:bg-skyHover text-purpleSecondary font-black px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg">
                     + Add Step Node
                 </button>
             </div>
 
             <form method="POST" action="{{ route('workflows.storeDesigner') }}" class="space-y-6">
                 @csrf
+                <input type="hidden" name="workflow_id" value="{{ $workflow ? $workflow->id : '' }}">
                 <input type="hidden" name="name" value="{{ $workflow ? $workflow->name : 'Custom Visual Workflow' }}">
                 <input type="hidden" name="code" value="{{ $workflow ? $workflow->code : 'WF-VISUAL-' . rand(100,999) }}">
                 <input type="hidden" name="category" value="{{ $workflow ? $workflow->category : 'general' }}">
-                <input type="hidden" name="sla_hours" value="48">
-                <input type="hidden" name="form_title" value="Request Form">
-                <input type="hidden" name="fields[0][label]" value="Request Description">
-                <input type="hidden" name="fields[0][field_name]" value="description">
-                <input type="hidden" name="fields[0][field_type]" value="text">
+                <input type="hidden" name="sla_hours" value="{{ $workflow ? $workflow->sla_hours : 48 }}">
+                <input type="hidden" name="form_title" value="{{ $workflow && $workflow->activeFormTemplate ? $workflow->activeFormTemplate->title : 'Request Form' }}">
+
+                @if($workflow && $workflow->activeFormTemplate && $workflow->activeFormTemplate->fields->count() > 0)
+                    @foreach($workflow->activeFormTemplate->fields as $fIndex => $field)
+                        <input type="hidden" name="fields[{{ $fIndex }}][label]" value="{{ $field->label }}">
+                        <input type="hidden" name="fields[{{ $fIndex }}][field_name]" value="{{ $field->field_name }}">
+                        <input type="hidden" name="fields[{{ $fIndex }}][field_type]" value="{{ $field->field_type }}">
+                        <input type="hidden" name="fields[{{ $fIndex }}][is_required]" value="{{ $field->is_required ? '1' : '0' }}">
+                        @if($field->options)
+                            <input type="hidden" name="fields[{{ $fIndex }}][options]" value="{{ is_array($field->options) ? implode(',', $field->options) : $field->options }}">
+                        @endif
+                    @endforeach
+                @else
+                    <input type="hidden" name="fields[0][label]" value="Request Details">
+                    <input type="hidden" name="fields[0][field_name]" value="description">
+                    <input type="hidden" name="fields[0][field_type]" value="text">
+                @endif
 
                 <!-- Drop Target Canvas Container -->
                 <div id="canvas-dropzone" ondragover="allowDrop(event)" ondrop="drop(event)" class="min-h-[300px] p-6 rounded-3xl bg-creamBase/60 border-2 border-dashed border-slate-300 space-y-4">
                     @if($workflow && $workflow->steps->count() > 0)
                         @foreach($workflow->steps as $index => $step)
-                            <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-between gap-4 draggable-step shiny-card page-fade-up" draggable="true">
+                            <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-between gap-4 draggable-step shiny-card cursor-move" draggable="true">
                                 <div class="flex items-center space-x-4">
-                                    <span class="w-9 h-9 rounded-xl bg-purpleSecondary text-white font-black flex items-center justify-center text-sm shadow-md">{{ $index + 1 }}</span>
+                                    <span class="step-badge w-9 h-9 rounded-xl bg-purpleSecondary text-white font-black flex items-center justify-center text-sm shadow-md">{{ $index + 1 }}</span>
                                     <div>
-                                        <input type="text" name="steps[{{ $index }}][name]" value="{{ $step->name }}" class="font-black text-slate-900 text-sm bg-transparent border-b border-slate-300 focus:border-skyPrimary focus:outline-none">
-                                        <p class="text-xs font-bold text-slate-500 mt-1">Assignee: {{ $step->assignee_type }} | SLA: {{ $step->sla_hours }}h</p>
-                                        <input type="hidden" name="steps[{{ $index }}][type]" value="{{ $step->type }}">
-                                        <input type="hidden" name="steps[{{ $index }}][assignee_type]" value="{{ $step->assignee_type }}">
+                                        <input type="text" name="steps[{{ $index }}][name]" value="{{ $step->name }}" class="step-name-input font-black text-slate-900 text-sm bg-transparent border-b border-slate-300 focus:border-skyPrimary focus:outline-none">
+                                        <p class="text-xs font-bold text-slate-500 mt-1">Type: {{ $step->type }} | Assignee: {{ $step->assignee_type }} | SLA: {{ $step->sla_hours }}h</p>
+                                        <input type="hidden" name="steps[{{ $index }}][type]" value="{{ $step->type }}" class="step-type-input">
+                                        <input type="hidden" name="steps[{{ $index }}][assignee_type]" value="{{ $step->assignee_type }}" class="step-assignee-input">
+                                        <input type="hidden" name="steps[{{ $index }}][sla_hours]" value="{{ $step->sla_hours }}" class="step-sla-input">
                                     </div>
                                 </div>
-                                <button type="button" onclick="this.closest('.draggable-step').remove()" class="text-rose-500 hover:text-rose-700 font-black text-xs">Remove</button>
+                                <button type="button" onclick="removeStepCard(this)" class="text-rose-500 hover:text-rose-700 font-black text-xs">Remove</button>
                             </div>
                         @endforeach
                     @else
-                        <div class="text-center py-12 text-slate-400 font-bold text-sm">
+                        <div id="empty-canvas-placeholder" class="text-center py-12 text-slate-400 font-bold text-sm">
                             Drag step nodes from the left palette or click "+ Add Step Node" to start visual workflow assembly.
                         </div>
                     @endif
@@ -178,31 +193,109 @@
 <script>
 function allowDrop(ev) { ev.preventDefault(); }
 function dragStart(ev, type) { ev.dataTransfer.setData("type", type); }
+
 function drop(ev) {
     ev.preventDefault();
     const type = ev.dataTransfer.getData("type");
-    addStepCard(type);
+    if (type) {
+        addStepCard(type);
+    }
 }
-let stepCount = {{ $workflow ? $workflow->steps->count() : 0 }};
-function addStepCard(type = 'approval') {
-    stepCount++;
+
+let draggedCard = null;
+
+function updateStepIndices() {
     const container = document.getElementById('canvas-dropzone');
+    const placeholder = document.getElementById('empty-canvas-placeholder');
+    const cards = container.querySelectorAll('.draggable-step');
+
+    if (cards.length > 0 && placeholder) {
+        placeholder.style.display = 'none';
+    } else if (cards.length === 0 && placeholder) {
+        placeholder.style.display = 'block';
+    }
+
+    cards.forEach((card, idx) => {
+        const badge = card.querySelector('.step-badge');
+        if (badge) badge.textContent = idx + 1;
+
+        const nameInput = card.querySelector('.step-name-input');
+        if (nameInput) nameInput.name = `steps[${idx}][name]`;
+
+        const typeInput = card.querySelector('.step-type-input');
+        if (typeInput) typeInput.name = `steps[${idx}][type]`;
+
+        const assigneeInput = card.querySelector('.step-assignee-input');
+        if (assigneeInput) assigneeInput.name = `steps[${idx}][assignee_type]`;
+
+        const slaInput = card.querySelector('.step-sla-input');
+        if (slaInput) slaInput.name = `steps[${idx}][sla_hours]`;
+    });
+}
+
+function bindCardDragEvents(card) {
+    card.addEventListener('dragstart', function(e) {
+        draggedCard = this;
+        e.dataTransfer.setData("text/plain", "reorder");
+        setTimeout(() => this.classList.add('opacity-40'), 0);
+    });
+
+    card.addEventListener('dragend', function(e) {
+        this.classList.remove('opacity-40');
+        draggedCard = null;
+        updateStepIndices();
+    });
+
+    card.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (draggedCard && draggedCard !== this) {
+            const container = document.getElementById('canvas-dropzone');
+            const rect = this.getBoundingClientRect();
+            const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+            container.insertBefore(draggedCard, next ? this.nextSibling : this);
+        }
+    });
+}
+
+function addStepCard(type = 'approval') {
+    const container = document.getElementById('canvas-dropzone');
+    const placeholder = document.getElementById('empty-canvas-placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+
+    const count = container.querySelectorAll('.draggable-step').length + 1;
     const card = document.createElement('div');
-    card.className = 'p-5 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-between gap-4 draggable-step shiny-card page-fade-up';
+    card.className = 'p-5 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-between gap-4 draggable-step shiny-card cursor-move page-fade-up';
     card.setAttribute('draggable', 'true');
     card.innerHTML = `
         <div class="flex items-center space-x-4">
-            <span class="w-9 h-9 rounded-xl bg-purpleSecondary text-white font-black flex items-center justify-center text-sm shadow-md">${stepCount}</span>
+            <span class="step-badge w-9 h-9 rounded-xl bg-purpleSecondary text-white font-black flex items-center justify-center text-sm shadow-md">${count}</span>
             <div>
-                <input type="text" name="steps[${stepCount-1}][name]" value="Step ${stepCount} (${type})" class="font-black text-slate-900 text-sm bg-transparent border-b border-slate-300 focus:border-skyPrimary focus:outline-none">
-                <p class="text-xs font-bold text-slate-500 mt-1">Type: ${type} | Assignee: manager</p>
-                <input type="hidden" name="steps[${stepCount-1}][type]" value="${type}">
-                <input type="hidden" name="steps[${stepCount-1}][assignee_type]" value="manager">
+                <input type="text" name="steps[${count-1}][name]" value="Step ${count} (${type.toUpperCase()})" class="step-name-input font-black text-slate-900 text-sm bg-transparent border-b border-slate-300 focus:border-skyPrimary focus:outline-none">
+                <p class="text-xs font-bold text-slate-500 mt-1">Type: ${type} | Assignee: manager | SLA: 24h</p>
+                <input type="hidden" name="steps[${count-1}][type]" value="${type}" class="step-type-input">
+                <input type="hidden" name="steps[${count-1}][assignee_type]" value="manager" class="step-assignee-input">
+                <input type="hidden" name="steps[${count-1}][sla_hours]" value="24" class="step-sla-input">
             </div>
         </div>
-        <button type="button" onclick="this.closest('.draggable-step').remove()" class="text-rose-500 hover:text-rose-700 font-black text-xs">Remove</button>
+        <button type="button" onclick="removeStepCard(this)" class="text-rose-500 hover:text-rose-700 font-black text-xs">Remove</button>
     `;
+
     container.appendChild(card);
+    bindCardDragEvents(card);
+    updateStepIndices();
 }
+
+function removeStepCard(btn) {
+    const card = btn.closest('.draggable-step');
+    if (card) {
+        card.remove();
+        updateStepIndices();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.draggable-step').forEach(card => bindCardDragEvents(card));
+    updateStepIndices();
+});
 </script>
 @endsection

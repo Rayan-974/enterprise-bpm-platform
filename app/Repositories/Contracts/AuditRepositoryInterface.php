@@ -8,5 +8,5 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface AuditRepositoryInterface
 {
     public function logAction(array $data): AuditLog;
-    public function getPaginatedLogs(array $filters = [], int $perPage = 20): LengthAwarePaginator;
+    public function getPaginatedLogs(array $filters = [], int|string $perPage = 50);
 }

@@ -31,6 +31,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/workflows/create', [WorkflowController::class, 'create'])->name('workflows.create');
     Route::get('/workflows/builder/{id?}', [WorkflowController::class, 'builder'])->name('workflows.builder');
     Route::post('/workflows/designer', [WorkflowController::class, 'storeDesigner'])->name('workflows.storeDesigner');
+    Route::get('/workflows/{id}/edit', [WorkflowController::class, 'edit'])->name('workflows.edit');
+    Route::put('/workflows/{id}', [WorkflowController::class, 'update'])->name('workflows.update');
+    Route::delete('/workflows/{id}', [WorkflowController::class, 'destroy'])->name('workflows.destroy');
     Route::get('/workflows/{id}/bpmn/export', [WorkflowController::class, 'exportBpmn'])->name('workflows.exportBpmn');
     Route::post('/workflows/bpmn/import', [WorkflowController::class, 'importBpmn'])->name('workflows.importBpmn');
     Route::post('/workflows/{id}/version', [WorkflowController::class, 'createVersion'])->name('workflows.createVersion');

@@ -13,7 +13,7 @@ class AuditRepository implements AuditRepositoryInterface
         return AuditLog::create($data);
     }
 
-    public function getPaginatedLogs(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function getPaginatedLogs(array $filters = [], int|string $perPage = 50)
     {
         $query = AuditLog::with('user');
 
@@ -33,6 +33,12 @@ class AuditRepository implements AuditRepositoryInterface
             $query->where('entity_id', $filters['entity_id']);
         }
 
-        return $query->orderBy('created_at', 'desc')->paginate($perPage);
+        $query->orderBy('created_at', 'desc');
+
+        if ($perPage === 'all') {
+            return $query->paginate(1000);
+        }
+
+        return $query->paginate(max(1, (int)$perPage));
     }
 }
